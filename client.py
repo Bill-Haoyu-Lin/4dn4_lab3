@@ -49,16 +49,23 @@ def upload_file(tcp_socket, filename):
     print("File Sent.")
 
 def download_file(tcp_socket, filename):
-    tcp_socket.sendall(b'\x01' + filename.encode(encoding='UTF-8') + b'\x00')
-    file_path = os.path.join(LOCAL_DIRECTORY, filename)
-    with open(file_path, 'wb') as f:
-        while True:
-            data = tcp_socket.recv(1024)
-            if data == b"package_end":
-                break
-            f.write(data)
+    try:
+        tcp_socket.sendall(b'\x01' + filename.encode(encoding='UTF-8') + b'\x00')
+        file_path = os.path.join(LOCAL_DIRECTORY, filename)
+        with open(file_path, 'wb') as f:
+            while True:
+                data = tcp_socket.recv(1024)
+                if data == b"package_end":
+                    break
+                f.write(data)
 
-    print(f"File {filename} downloaded.")
+        print(f"File {filename} downloaded.")
+
+    except Exception as e:
+        print(f"Error downloading file: {e}")
+        # Remove the file if it was not received completely
+        os.remove(file_path)
+        
 
 def main():
     while True:

@@ -55,9 +55,11 @@ def handle_client_connection(client_socket):
                 client_socket.send(b"package_end")       
                 print(f"File {filename} sent.")
 
-
         except Exception as e:
             print(f"Error handling command: {e}")
+            if command.startswith(b'\x02'):
+                # Remove the file if it was not received completely
+                os.remove(file_path)
             break
     print("Connection closed.")
     client_socket.close()
